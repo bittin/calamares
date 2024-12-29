@@ -12,7 +12,6 @@
 #include "GlobalStorage.h"
 #include "JobQueue.h"
 #include "python/Api.h"
-#include "python/Logger.h"
 #include "python/Pybind11Helpers.h"
 #include "utils/Logger.h"
 
