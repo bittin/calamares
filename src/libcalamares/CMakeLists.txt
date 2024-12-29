@@ -128,6 +128,7 @@ endif()
 #
 if(WITH_PYTHON)
     if(WITH_PYBIND11)
+        target_include_directories(calamares PRIVATE pybind11)
         target_sources(calamares PRIVATE python/Api.cpp python/PythonJob.cpp)
         target_link_libraries(calamares PRIVATE Python::Python pybind11::headers)
     else()

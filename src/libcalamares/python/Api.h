@@ -17,7 +17,7 @@
  * imported by the Python code as `import libcalamares`.
  */
 
-#include "python/Pybind11Helpers.h"
+#include "PythonTypes.h"
 
 #include <string>
 
