@@ -13,7 +13,7 @@
 
 #include "DllMacro.h"
 #include "PythonJob.h"
-#include "utils/BoostPython.h"
+#include "PythonTypes.h"
 
 #include <QStringList>
 

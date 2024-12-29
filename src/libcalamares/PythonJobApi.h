@@ -11,9 +11,11 @@
 #ifndef PYTHONJOBAPI_H
 #define PYTHONJOBAPI_H
 
-#include "utils/BoostPython.h"
+#include "PythonTypes.h"
 
 #include <qglobal.h>  // For qreal
+
+#include <string>
 
 namespace Calamares
 {

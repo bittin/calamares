@@ -14,7 +14,7 @@
 #include "JobQueue.h"
 #include "PythonHelper.h"
 #include "PythonJobApi.h"
-#include "utils/BoostPython.h"
+#include "PythonTypes.h"
 #include "utils/Logger.h"
 
 #include <QDir>
