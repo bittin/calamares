@@ -25,16 +25,9 @@ class GlobalStorage;
 namespace CalamaresPython
 {
 
-DLLEXPORT boost::python::object variantToPyObject( const QVariant& variant );
 DLLEXPORT QVariant variantFromPyObject( const boost::python::object& pyObject );
-
-DLLEXPORT boost::python::list variantListToPyList( const QVariantList& variantList );
 DLLEXPORT QVariantList variantListFromPyList( const boost::python::list& pyList );
-
-DLLEXPORT boost::python::dict variantMapToPyDict( const QVariantMap& variantMap );
 DLLEXPORT QVariantMap variantMapFromPyDict( const boost::python::dict& pyDict );
-
-DLLEXPORT boost::python::dict variantHashToPyDict( const QVariantHash& variantHash );
 DLLEXPORT QVariantHash variantHashFromPyDict( const boost::python::dict& pyDict );
 
 

@@ -10,11 +10,13 @@
 
 #include "PythonJobApi.h"
 
+#include "PythonHelper.h"
+
 #include "GlobalStorage.h"
 #include "JobQueue.h"
-#include "PythonHelper.h"
 #include "locale/Global.h"
 #include "partition/Mount.h"
+#include "python/Variant.h"
 #include "utils/Logger.h"
 #include "utils/RAII.h"
 #include "utils/Runner.h"
@@ -169,7 +171,7 @@ load_yaml( const std::string& path )
     {
         cWarning() << "Loading YAML from" << filePath << "failed.";
     }
-    return variantMapToPyDict( map );
+    return Calamares::Python::variantMapToPyDict( map );
 }
 
 PythonJobInterface::PythonJobInterface( Calamares::PythonJob* parent )
@@ -179,7 +181,7 @@ PythonJobInterface::PythonJobInterface( Calamares::PythonJob* parent )
     moduleName = moduleDir.dirName().toStdString();
     prettyName = m_parent->prettyName().toStdString();
     workingPath = m_parent->m_workingPath.toStdString();
-    configuration = CalamaresPython::variantMapToPyDict( m_parent->m_configurationMap );
+    configuration = Calamares::Python::variantMapToPyDict( m_parent->m_configurationMap );
 }
 
 void

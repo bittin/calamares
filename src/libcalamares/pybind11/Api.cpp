@@ -9,13 +9,15 @@
  */
 #include "Api.h"
 
+#include "Pybind11Helpers.h"
+#include "PythonJob.h"
+
 #include "GlobalStorage.h"
 #include "JobQueue.h"
 #include "compat/Variant.h"
 #include "locale/Global.h"
 #include "partition/Mount.h"
-#include "pybind11/Pybind11Helpers.h"
-#include "pybind11/PythonJob.h"
+#include "python/Variant.h"
 #include "utils/Logger.h"
 #include "utils/RAII.h"
 #include "utils/Runner.h"
@@ -35,103 +37,6 @@ namespace py = pybind11;
  */
 namespace
 {
-// Forward declarations, since most of these are mutually recursive
-Calamares::Python::List variantListToPyList( const QVariantList& variantList );
-Calamares::Python::Dictionary variantMapToPyDict( const QVariantMap& variantMap );
-Calamares::Python::Dictionary variantHashToPyDict( const QVariantHash& variantHash );
-
-py::object
-variantToPyObject( const QVariant& variant )
-{
-    QT_WARNING_PUSH
-    QT_WARNING_DISABLE_CLANG( "-Wswitch-enum" )
-
-#if QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 )
-    const auto IntVariantType = QVariant::Int;
-    const auto UIntVariantType = QVariant::UInt;
-#else
-    const auto IntVariantType = QMetaType::Type::Int;
-    const auto UIntVariantType = QMetaType::Type::UInt;
-#endif
-    // 49 enumeration values not handled
-    switch ( Calamares::typeOf( variant ) )
-    {
-    case Calamares::MapVariantType:
-        return variantMapToPyDict( variant.toMap() );
-
-    case Calamares::HashVariantType:
-        return variantHashToPyDict( variant.toHash() );
-
-    case Calamares::ListVariantType:
-    case Calamares::StringListVariantType:
-        return variantListToPyList( variant.toList() );
-
-    case IntVariantType:
-        return py::int_( variant.toInt() );
-    case UIntVariantType:
-        return py::int_( variant.toUInt() );
-
-    case Calamares::LongLongVariantType:
-        return py::int_( variant.toLongLong() );
-    case Calamares::ULongLongVariantType:
-        return py::int_( variant.toULongLong() );
-
-    case Calamares::DoubleVariantType:
-        return py::float_( variant.toDouble() );
-
-    case Calamares::CharVariantType:
-#if QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 )
-#else
-    // In Qt6, QChar is also available and different from CharVariantType
-    case QMetaType::Type::QChar:
-#endif
-    case Calamares::StringVariantType:
-        return Calamares::Python::String( variant.toString().toStdString() );
-
-    case Calamares::BoolVariantType:
-        return py::bool_( variant.toBool() );
-
-#if QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 )
-    case QVariant::Invalid:
-#endif
-    default:
-        return py::none();
-    }
-    QT_WARNING_POP
-}
-
-Calamares::Python::List
-variantListToPyList( const QVariantList& variantList )
-{
-    Calamares::Python::List pyList;
-    for ( const QVariant& variant : variantList )
-    {
-        pyList.append( variantToPyObject( variant ) );
-    }
-    return pyList;
-}
-
-Calamares::Python::Dictionary
-variantMapToPyDict( const QVariantMap& variantMap )
-{
-    Calamares::Python::Dictionary pyDict;
-    for ( auto it = variantMap.constBegin(); it != variantMap.constEnd(); ++it )
-    {
-        pyDict[ Calamares::Python::String( it.key().toStdString() ) ] = variantToPyObject( it.value() );
-    }
-    return pyDict;
-}
-
-Calamares::Python::Dictionary
-variantHashToPyDict( const QVariantHash& variantHash )
-{
-    Calamares::Python::Dictionary pyDict;
-    for ( auto it = variantHash.constBegin(); it != variantHash.constEnd(); ++it )
-    {
-        pyDict[ Calamares::Python::String( it.key().toStdString() ) ] = variantToPyObject( it.value() );
-    }
-    return pyDict;
-}
 
 QVariantList variantListFromPyList( const Calamares::Python::List& list );
 QVariantMap variantMapFromPyDict( const Calamares::Python::Dictionary& dict );
@@ -367,7 +272,7 @@ load_yaml( const std::string& path )
         cWarning() << "Loading YAML from" << filePath << "failed.";
     }
 
-    return variantMapToPyDict( map );
+    return Calamares::Python::variantMapToPyDict( map );
 }
 
 py::list
@@ -484,7 +389,7 @@ JobProxy::JobProxy( Calamares::Python::Job* parent )
     : prettyName( parent->prettyName().toStdString() )
     , workingPath( parent->workingPath().toStdString() )
     , moduleName( QDir( parent->workingPath() ).dirName().toStdString() )
-    , configuration( variantMapToPyDict( parent->configuration() ) )
+    , configuration( Calamares::Python::variantMapToPyDict( parent->configuration() ) )
     , m_parent( parent )
 {
 }
@@ -566,7 +471,7 @@ GlobalStorageProxy::value( const std::string& key ) const
         cWarning() << "Unknown GS key" << key.c_str();
         return py::none();
     }
-    return variantToPyObject( m_gs->value( gsKey ) );
+    return Calamares::Python::variantToPyObject( m_gs->value( gsKey ) );
 }
 
 }  // namespace Python
