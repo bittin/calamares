@@ -6,13 +6,13 @@
  *   Calamares is Free Software: see the License-Identifier above.
  *
  */
-#include "python/PythonJob.h"
+#include "PythonJob.h"
 
 #include "CalamaresVersionX.h"
 #include "GlobalStorage.h"
 #include "JobQueue.h"
-#include "python/Api.h"
-#include "python/Pybind11Helpers.h"
+#include "pybind11/Api.h"
+#include "pybind11/Pybind11Helpers.h"
 #include "utils/Logger.h"
 
 #include <QDir>

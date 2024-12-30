@@ -35,9 +35,9 @@
 // - QML support
 #ifdef WITH_PYTHON
 #ifdef WITH_PYBIND11
-#include "python/PythonJob.h"
+#include "pybind11/PythonJob.h"
 #else
-#include "PythonJob.h"
+#include "pyboost/PythonJob.h"
 #endif
 #endif
 #ifdef WITH_QML
