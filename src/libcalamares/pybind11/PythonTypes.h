@@ -10,7 +10,7 @@
 #ifndef CALAMARES_PYBIND11_PYTHONTYPES_H
 #define CALAMARES_PYBIND11_PYTHONTYPES_H
 
-#include <qglobal.h>
+#include <QString>
 
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_CLANG( "-Wcovered-switch-default" )
@@ -41,6 +41,14 @@ namespace Python __attribute__( ( visibility( "hidden" ) ) )
     using List = pybind11::list;
     using Object = pybind11::object;
 
+    inline auto None()
+    {
+        return pybind11::none();
+    }
+
+    using Integer = pybind11::int_;
+    using Float = pybind11::float_;
+    using Boolean = pybind11::bool_;
     using String = pybind11::str;
 }  // namespace Python
 }  // namespace Calamares

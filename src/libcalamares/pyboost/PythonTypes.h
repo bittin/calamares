@@ -66,6 +66,16 @@ namespace Python __attribute__( ( visibility( "hidden" ) ) )
     using Dictionary = boost::python::dict;
     using List = boost::python::list;
     using Object = boost::python::object;
+
+    inline auto None()
+    {
+        return Object();
+    }
+
+    using Integer = Object;
+    using Float = Object;
+    using Boolean = Object;
+    using String = Object;
 }  // namespace Python
 }  // namespace Calamares
 
