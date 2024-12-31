@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef CALAMARES_PYTHONJOBHELPER_H
-#define CALAMARES_PYTHONJOBHELPER_H
+#ifndef CALAMARES_PYBOOST_PYTHONHELPER_H
+#define CALAMARES_PYBOOST_PYTHONHELPER_H
 
 #include "DllMacro.h"
 #include "PythonJob.h"

@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CALAMARES_PYTHON_API_H
-#define CALAMARES_PYTHON_API_H
+#ifndef CALAMARES_PYBIND11_API_H
+#define CALAMARES_PYBIND11_API_H
 
 /** @file
  *

@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CALAMARES_PYTHON_PYTHONJOB_H
-#define CALAMARES_PYTHON_PYTHONJOB_H
+#ifndef CALAMARES_PYBIND11_PYTHONJOB_H
+#define CALAMARES_PYBIND11_PYTHONJOB_H
 
 // This file is called PythonJob.h because it would otherwise
 // clash with the Job.h in libcalamares proper.

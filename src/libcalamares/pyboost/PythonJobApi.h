@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef PYTHONJOBAPI_H
-#define PYTHONJOBAPI_H
+#ifndef CALAMARES_PYBOOST_PYTHONJOBAPI_H
+#define CALAMARES_PYBOOST_PYTHONJOBAPI_H
 
 #include "PythonTypes.h"
 
