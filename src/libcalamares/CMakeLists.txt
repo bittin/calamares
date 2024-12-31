@@ -136,7 +136,7 @@ if(WITH_PYTHON)
         target_sources(calamares PRIVATE pyboost/PythonHelper.cpp pyboost/PythonJob.cpp pyboost/PythonJobApi.cpp)
         target_link_libraries(calamares PRIVATE Python::Python Boost::python)
     endif()
-    target_sources(calamares PRIVATE python/Variant.cpp)
+    target_sources(calamares PRIVATE python/Api.cpp python/Variant.cpp)
 endif()
 
 ### OPTIONAL GeoIP XML support

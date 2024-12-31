@@ -25,11 +25,6 @@ class PythonJob;
 namespace CalamaresPython
 {
 
-int mount( const std::string& device_path,
-           const std::string& mount_point,
-           const std::string& filesystem_name = std::string(),
-           const std::string& options = std::string() );
-
 int target_env_call( const std::string& command, const std::string& input = std::string(), int timeout = 0 );
 
 int target_env_call( const boost::python::list& args, const std::string& input = std::string(), int timeout = 0 );
@@ -53,21 +48,6 @@ int host_env_process_output( const boost::python::list& args,
                              const boost::python::object& callback = boost::python::object(),
                              const std::string& input = std::string(),
                              int timeout = 0 );
-
-std::string obscure( const std::string& string );
-
-boost::python::object gettext_path();
-
-boost::python::list gettext_languages();
-
-void debug( const std::string& s );
-void warning( const std::string& s );
-void error( const std::string& s );
-
-/** @brief Loads YAML and returns (nested) dicts representing it
- *
- */
-boost::python::dict load_yaml( const std::string& path );
 
 class PythonJobInterface
 {

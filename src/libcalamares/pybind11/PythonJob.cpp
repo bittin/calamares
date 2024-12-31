@@ -13,6 +13,7 @@
 #include "JobQueue.h"
 #include "pybind11/Api.h"
 #include "pybind11/Pybind11Helpers.h"
+#include "python/Api.h"
 #include "utils/Logger.h"
 
 #include <QDir>

@@ -9,12 +9,14 @@
  */
 #include "PythonJob.h"
 
-#include "CalamaresVersion.h"
-#include "GlobalStorage.h"
-#include "JobQueue.h"
 #include "PythonHelper.h"
 #include "PythonJobApi.h"
 #include "PythonTypes.h"
+
+#include "CalamaresVersion.h"
+#include "GlobalStorage.h"
+#include "JobQueue.h"
+#include "python/Api.h"
 #include "utils/Logger.h"
 
 #include <QDir>
@@ -31,7 +33,7 @@ namespace bp = boost::python;
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_CLANG( "-Wdisabled-macro-expansion" )
 
-BOOST_PYTHON_FUNCTION_OVERLOADS( mount_overloads, CalamaresPython::mount, 2, 4 );
+BOOST_PYTHON_FUNCTION_OVERLOADS( mount_overloads, Calamares::Python::mount, 2, 4 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( target_env_call_str_overloads, CalamaresPython::target_env_call, 1, 3 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( target_env_call_list_overloads, CalamaresPython::target_env_call, 1, 3 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( check_target_env_call_str_overloads, CalamaresPython::check_target_env_call, 1, 3 );
@@ -91,25 +93,25 @@ BOOST_PYTHON_MODULE( libcalamares )
 
     // .. Logging functions
     bp::def(
-        "debug", &CalamaresPython::debug, bp::args( "s" ), "Writes the given string to the Calamares debug stream." );
+        "debug", &Calamares::Python::debug, bp::args( "s" ), "Writes the given string to the Calamares debug stream." );
     bp::def( "warning",
-             &CalamaresPython::warning,
+             &Calamares::Python::warning,
              bp::args( "s" ),
              "Writes the given string to the Calamares warning stream." );
     bp::def( "warn",
-             &CalamaresPython::warning,
+             &Calamares::Python::warning,
              bp::args( "s" ),
              "Writes the given string to the Calamares warning stream." );
     bp::def(
-        "error", &CalamaresPython::error, bp::args( "s" ), "Writes the given string to the Calamares error stream." );
+        "error", &Calamares::Python::error, bp::args( "s" ), "Writes the given string to the Calamares error stream." );
 
 
     // .. YAML functions
-    bp::def( "load_yaml", &CalamaresPython::load_yaml, bp::args( "path" ), "Loads YAML from a file." );
+    bp::def( "load_yaml", &Calamares::Python::load_yaml, bp::args( "path" ), "Loads YAML from a file." );
 
     // .. Filesystem functions
     bp::def( "mount",
-             &CalamaresPython::mount,
+             &Calamares::Python::mount,
              mount_overloads( bp::args( "device_path", "mount_point", "filesystem_name", "options" ),
                               "Runs the mount utility with the specified parameters.\n"
                               "Returns the program's exit code, or:\n"
@@ -178,7 +180,7 @@ BOOST_PYTHON_MODULE( libcalamares )
 
     // .. String functions
     bp::def( "obscure",
-             &CalamaresPython::obscure,
+             &Calamares::Python::obscure,
              bp::args( "s" ),
              "Simple string obfuscation function based on KStringHandler::obscure.\n"
              "Returns a string, generated using a simple symmetric encryption.\n"
@@ -187,10 +189,10 @@ BOOST_PYTHON_MODULE( libcalamares )
 
     // .. Translation functions
     bp::def( "gettext_languages",
-             &CalamaresPython::gettext_languages,
+             &Calamares::Python::gettext_languages,
              "Returns list of languages (most to least-specific) for gettext." );
 
-    bp::def( "gettext_path", &CalamaresPython::gettext_path, "Returns path for gettext search." );
+    bp::def( "gettext_path", &Calamares::Python::gettext_path, "Returns path for gettext search." );
 }
 
 

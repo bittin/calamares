@@ -29,29 +29,12 @@ class PythonJob;
 
 namespace Python __attribute__( ( visibility( "hidden" ) ) )
 {
-    std::string obscure( const std::string& string );
-
-    void debug( const std::string& s );
-    void warning( const std::string& s );
-    // void warn( const std::string& s) is an alias of warning() defined at the Python level
-    void error( const std::string& s );
-
-    Dictionary load_yaml( const std::string& path );
-
-    List gettext_languages();
-    Object gettext_path();
-
     int target_env_call( const List& args, const std::string& input, int timeout );
     int check_target_env_call( const List& args, const std::string& input, int timeout );
     std::string check_target_env_output( const List& args, const std::string& input, int timeout );
 
     int target_env_process_output( const List& args, const Object& callback, const std::string& input, int timeout );
     int host_env_process_output( const List& args, const Object& callback, const std::string& input, int timeout );
-
-    int mount( const std::string& device_path,
-               const std::string& mount_point,
-               const std::string& filesystem_name,
-               const std::string& options );
 
     class Job;
 

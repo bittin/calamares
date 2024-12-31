@@ -16,7 +16,6 @@
 #include "JobQueue.h"
 #include "compat/Variant.h"
 #include "locale/Global.h"
-#include "partition/Mount.h"
 #include "python/Variant.h"
 #include "utils/Logger.h"
 #include "utils/RAII.h"
@@ -105,65 +104,6 @@ stringListFromPyList( const Calamares::Python::List& list )
     return l;
 }
 
-const char output_prefix[] = "[PYTHON JOB]:";
-inline void
-log_action( unsigned int level, const std::string& s )
-{
-    Logger::CDebug( level ) << output_prefix << QString::fromStdString( s );
-}
-
-static Calamares::GlobalStorage*
-_global_storage()
-{
-    static Calamares::GlobalStorage* p = new Calamares::GlobalStorage;
-    return p;
-}
-
-static QStringList
-_gettext_languages()
-{
-    QStringList languages;
-
-    // There are two ways that Python jobs can be initialised:
-    //  - through JobQueue, in which case that has an instance which holds
-    //    a GlobalStorage object, or
-    //  - through the Python test-script, which initialises its
-    //    own GlobalStorageProxy, which then holds a
-    //    GlobalStorage object for all of Python.
-    Calamares::JobQueue* jq = Calamares::JobQueue::instance();
-    Calamares::GlobalStorage* gs = jq ? jq->globalStorage() : _global_storage();
-
-    QString lang = Calamares::Locale::readGS( *gs, QStringLiteral( "LANG" ) );
-    if ( !lang.isEmpty() )
-    {
-        languages.append( lang );
-        if ( lang.indexOf( '.' ) > 0 )
-        {
-            lang.truncate( lang.indexOf( '.' ) );
-            languages.append( lang );
-        }
-        if ( lang.indexOf( '_' ) > 0 )
-        {
-            lang.truncate( lang.indexOf( '_' ) );
-            languages.append( lang );
-        }
-    }
-    return languages;
-}
-
-static void
-_add_localedirs( QStringList& pathList, const QString& candidate )
-{
-    if ( !candidate.isEmpty() && !pathList.contains( candidate ) )
-    {
-        pathList.prepend( candidate );
-        if ( QDir( candidate ).cd( "lang" ) )
-        {
-            pathList.prepend( candidate + "/lang" );
-        }
-    }
-}
-
 int
 raise_on_error( const Calamares::ProcessResult& ec, const QStringList& commandList )
 {
@@ -237,101 +177,6 @@ namespace Calamares
 namespace Python
 {
 
-std::string
-obscure( const std::string& string )
-{
-    return Calamares::String::obscure( QString::fromStdString( string ) ).toStdString();
-}
-
-void
-debug( const std::string& s )
-{
-    log_action( Logger::LOGDEBUG, s );
-}
-
-void
-warning( const std::string& s )
-{
-    log_action( Logger::LOGWARNING, s );
-}
-
-void
-error( const std::string& s )
-{
-    log_action( Logger::LOGERROR, s );
-}
-
-Dictionary
-load_yaml( const std::string& path )
-{
-    const QString filePath = QString::fromUtf8( path.c_str() );
-    bool ok = false;
-    auto map = Calamares::YAML::load( filePath, &ok );
-    if ( !ok )
-    {
-        cWarning() << "Loading YAML from" << filePath << "failed.";
-    }
-
-    return Calamares::Python::variantMapToPyDict( map );
-}
-
-py::list
-gettext_languages()
-{
-    py::list pyList;
-    for ( auto lang : _gettext_languages() )
-    {
-        pyList.append( lang.toStdString() );
-    }
-    return pyList;
-}
-
-py::object
-gettext_path()
-{
-    // Going to log informatively just once
-    static bool first_time = true;
-    cScopedAssignment( &first_time, false );
-
-    // TODO: distinguish between -d runs and normal runs
-    // TODO: can we detect DESTDIR-installs?
-    QStringList candidatePaths
-        = QStandardPaths::locateAll( QStandardPaths::GenericDataLocation, "locale", QStandardPaths::LocateDirectory );
-    QString extra = QCoreApplication::applicationDirPath();
-    _add_localedirs( candidatePaths, extra );  // Often /usr/local/bin
-    if ( !extra.isEmpty() )
-    {
-        QDir d( extra );
-        if ( d.cd( "../share/locale" ) )  // Often /usr/local/bin/../share/locale -> /usr/local/share/locale
-        {
-            _add_localedirs( candidatePaths, d.canonicalPath() );
-        }
-    }
-    _add_localedirs( candidatePaths, QDir().canonicalPath() );  // .
-
-    if ( first_time )
-    {
-        cDebug() << "Determining gettext path from" << candidatePaths;
-    }
-
-    QStringList candidateLanguages = _gettext_languages();
-    for ( const auto& lang : candidateLanguages )
-    {
-        for ( auto localedir : candidatePaths )
-        {
-            QDir ldir( localedir );
-            if ( ldir.cd( lang ) )
-            {
-                Logger::CDebug( Logger::LOGDEBUG )
-                    << output_prefix << "Found gettext" << lang << "in" << ldir.canonicalPath();
-                return String( localedir.toStdString() );
-            }
-        }
-    }
-    cWarning() << "No translation found for languages" << candidateLanguages;
-    return py::none();  // None
-}
-
 int
 target_env_call( const List& args, const std::string& input, int timeout )
 {
@@ -371,18 +216,6 @@ host_env_process_output( const List& args, const Object& callback, const std::st
 {
     return process_output(
         Calamares::System::RunLocation::RunInHost, stringListFromPyList( args ), callback, input, timeout );
-}
-
-int
-mount( const std::string& device_path,
-       const std::string& mount_point,
-       const std::string& filesystem_name,
-       const std::string& options )
-{
-    return Calamares::Partition::mount( QString::fromStdString( device_path ),
-                                        QString::fromStdString( mount_point ),
-                                        QString::fromStdString( filesystem_name ),
-                                        QString::fromStdString( options ) );
 }
 
 JobProxy::JobProxy( Calamares::Python::Job* parent )
