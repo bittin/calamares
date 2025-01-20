@@ -187,6 +187,17 @@ target_env_call( const List& args, const std::string& input, int timeout )
 }
 
 int
+target_env_call( const std::string& command, const std::string& input, int timeout )
+{
+    return Calamares::System::instance()
+        ->targetEnvCommand( { QString::fromStdString( command ) },
+                            QString(),
+                            QString::fromStdString( input ),
+                            std::chrono::seconds( timeout ) )
+        .first;
+}
+
+int
 check_target_env_call( const List& args, const std::string& input, int timeout )
 {
     const auto commandList = stringListFromPyList( args );
