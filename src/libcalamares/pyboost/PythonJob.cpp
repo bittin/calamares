@@ -132,8 +132,8 @@ BOOST_PYTHON_MODULE( libcalamares )
                                        "-4 = QProcess timeout" ) );
     bp::def( "target_env_call",
              static_cast< int ( * )( const bp::list&, const std::string&, int ) >( &CalamaresPython::target_env_call ),
-             target_env_call_list_overloads( bp::args( "args", "stdin", "timeout" ),
-                                             "Runs the specified command in the chroot of the target system.\n"
+             target_env_call_list_overloads( bp::args( "command_list", "stdin", "timeout" ),
+                                             "Runs the specified command_list in the chroot of the target system.\n"
                                              "Returns the program's exit code, or:\n"
                                              "-1 = QProcess crash\n"
                                              "-2 = QProcess cannot start\n"
