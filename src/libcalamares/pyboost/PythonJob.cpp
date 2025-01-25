@@ -212,7 +212,6 @@ PythonJob::PythonJob( const QString& scriptFile,
     , m_d( std::make_unique< Private >() )
     , m_scriptFile( scriptFile )
     , m_workingPath( workingPath )
-    , m_description()
     , m_configurationMap( moduleConfiguration )
 {
 }
@@ -231,13 +230,14 @@ QString
 PythonJob::prettyStatusMessage() const
 {
     // The description is updated when progress is reported, see emitProgress()
-    if ( m_description.isEmpty() )
+    const auto s = getDescription();
+    if ( s.isEmpty() )
     {
         return tr( "Running %1 operation…", "@status" ).arg( QDir( m_workingPath ).dirName() );
     }
     else
     {
-        return m_description;
+        return s;
     }
 }
 
@@ -298,26 +298,27 @@ PythonJob::exec()
         bp::object entryPoint = scriptNamespace[ "run" ];
 
         m_d->m_prettyStatusMessage = scriptNamespace.get( "pretty_status_message", bp::object() );
-        m_description = pythonStringMethod( scriptNamespace, "pretty_name" );
-        if ( m_description.isEmpty() )
+        QString possibleDescription = pythonStringMethod( scriptNamespace, "pretty_name" );
+        if ( possibleDescription.isEmpty() )
         {
             bp::extract< std::string > entryPoint_doc_attr( entryPoint.attr( "__doc__" ) );
 
             if ( entryPoint_doc_attr.check() )
             {
-                m_description = QString::fromStdString( entryPoint_doc_attr() ).trimmed();
-                auto i_newline = m_description.indexOf( '\n' );
+                possibleDescription= QString::fromStdString( entryPoint_doc_attr() ).trimmed();
+                auto i_newline = possibleDescription.indexOf( '\n' );
                 if ( i_newline > 0 )
                 {
-                    m_description.truncate( i_newline );
+                    possibleDescription.truncate( i_newline );
                 }
-                cDebug() << Logger::SubEntry << "Job description from __doc__" << prettyName() << '=' << m_description;
+                cDebug() << Logger::SubEntry << "Job description from __doc__" << prettyName() << '=' << possibleDescription;
             }
         }
         else
         {
-            cDebug() << Logger::SubEntry << "Job description from pretty_name" << prettyName() << '=' << m_description;
+            cDebug() << Logger::SubEntry << "Job description from pretty_name" << prettyName() << '=' << possibleDescription;
         }
+        setDescription( possibleDescription);
         emit progress( 0 );
 
         bp::object runResult = entryPoint();
@@ -364,7 +365,7 @@ PythonJob::emitProgress( qreal progressValue )
         r = result.check() ? QString::fromStdString( result() ).trimmed() : QString();
         if ( !r.isEmpty() )
         {
-            m_description = r;
+            setDescription(r);
         }
     }
     emit progress( progressValue );
@@ -376,6 +377,18 @@ PythonJob::setInjectedPreScript( const char* preScript )
     s_preScript = preScript;
     cDebug() << "Python pre-script set to string" << Logger::Pointer( preScript ) << "length"
              << ( preScript ? strlen( preScript ) : 0 );
+}
+
+QString PythonJob::getDescription() const
+{
+    QMutexLocker l(&m_descriptionMutex);
+    return m_description;
+}
+
+void PythonJob::setDescription(const QString & s)
+{
+    QMutexLocker l(&m_descriptionMutex);
+    m_description = s;
 }
 
 }  // namespace Calamares

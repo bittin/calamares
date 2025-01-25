@@ -15,6 +15,7 @@
 #include "Job.h"
 #include "modulesystem/InstanceKey.h"
 
+#include <QMutex>
 #include <QVariantMap>
 
 #include <memory>
@@ -69,8 +70,13 @@ private:
     std::unique_ptr< Private > m_d;
     QString m_scriptFile;
     QString m_workingPath;
-    QString m_description;
     QVariantMap m_configurationMap;
+
+    mutable QMutex m_descriptionMutex; // Guards access to m_description, because that is read and written from multiple threads
+    QString m_description;
+
+    QString getDescription() const;
+    void setDescription(const QString & s);
 };
 
 }  // namespace Calamares
