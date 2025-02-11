@@ -10,10 +10,14 @@ the history of the 3.2 series (2018-05 - 2022-08).
 # 3.3.14 (unreleased)
 
 This release contains contributions from (alphabetically by given name):
+ - Adriaan de Groot
  - vincent PENVERN
 
 ## Core ##
- - Nothing yet!
+ - The Python bindings have been re-organized (source) and made more
+   consistent. At least one valid Python program would work with
+   the Boost::Python bindings, but not the pybind11 bindings. A
+   memory-corruption problem in the Boost::Python bindings was resolved.
 
 ## Modules ##
  - *partition* module stores a global storage value in luksPassphrase,
