@@ -694,7 +694,7 @@ ChoicePage::onLeave()
     Calamares::GlobalStorage* gs = Calamares::JobQueue::instance()->globalStorage();
     const bool useLuksPassphrase = ( m_encryptWidget->state() == EncryptWidget::Encryption::Confirmed );
     const QString storedLuksPassphrase
-        = useLuksPassphrase ? Calamares::String::obscure( m_encryptWidget->passphrase() ) : Qstring();
+        = useLuksPassphrase ? Calamares::String::obscure( m_encryptWidget->passphrase() ) : QString();
     gs->insert( "luksPassphrase", storedLuksPassphrase );
 
     if ( m_config->installChoice() == InstallChoice::Alongside )
