@@ -105,18 +105,20 @@ getSwapsForDevice( const QString& deviceName )
 }
 
 static inline bool
-isControl( const QString& baseName )
-{
-    return baseName == "control";
-}
-
-static inline bool
-isFedoraSpecial( const QString& baseName )
+isSpecial( const QString& baseName )
 {
     // Fedora live images use /dev/mapper/live-* internally. We must not
     // unmount those devices, because they are used by the live image and
     // because we need /dev/mapper/live-base in the unpackfs module.
-    return baseName.startsWith( "live-" );
+    if (baseName.startsWith( "live-" ))
+        return true;
+    // Exclude /dev/mapper/control
+    if (baseName == "control")
+        return true;
+    // When ventoy is used, ventoy uses the /dev/mapper/ventoy device. We
+    // must not unmount this device, because it is used by the live image
+    // and because we need /dev/mapper/ventoy in the unpackfs module.
+    return baseName == "ventoy";
 }
 
 /** @brief Returns a list of unneeded crypto devices
@@ -135,7 +137,7 @@ getCryptoDevices( const QStringList& mapperExceptions )
     for ( const QFileInfo& fi : fiList )
     {
         QString baseName = fi.baseName();
-        if ( isControl( baseName ) || isFedoraSpecial( baseName ) || mapperExceptions.contains( baseName ) )
+        if ( isSpecial( baseName ) || mapperExceptions.contains( baseName ) )
         {
             continue;
         }
