@@ -11,6 +11,7 @@ the history of the 3.2 series (2018-05 - 2022-08).
 
 This release contains contributions from (alphabetically by given name):
  - Adriaan de Groot
+ - TNE
  - vincent PENVERN
 
 ## Core ##
@@ -23,6 +24,8 @@ This release contains contributions from (alphabetically by given name):
  - *partition* module stores a global storage value in luksPassphrase,
    for later modules that need to manipulate the encrypted partition.
    (thanks vincent, #2424)
+ - *partition* module no longer clear (unmounts) a Ventoy device.
+   (thanks TNE, #2427)
 
 
 # 3.3.13 (2024-12-31)
@@ -41,7 +44,7 @@ This release contains contributions from (alphabetically by given name):
  - Fewer compile warnings with most-recent Qt versions.
  - Support systemd and consolekit block-suspend, not just KDE Plasma
    block-suspend, during installation. (thanks Jakob, #2404)
- 
+
 ## Modules ##
  - *dracut* module has more freedom to specify program options. (thanks Simon, #2401)
  - *partition* module improved some user-visible messages. (thanks Masato, #2412)

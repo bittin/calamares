@@ -110,15 +110,17 @@ isSpecial( const QString& baseName )
     // Fedora live images use /dev/mapper/live-* internally. We must not
     // unmount those devices, because they are used by the live image and
     // because we need /dev/mapper/live-base in the unpackfs module.
-    if (baseName.startsWith( "live-" ))
-        return true;
+    const bool specialForFedora = baseName.startsWith( "live-" );
+
     // Exclude /dev/mapper/control
-    if (baseName == "control")
-        return true;
+    const bool specialMapperControl = baseName == "control";
+
     // When ventoy is used, ventoy uses the /dev/mapper/ventoy device. We
     // must not unmount this device, because it is used by the live image
     // and because we need /dev/mapper/ventoy in the unpackfs module.
-    return baseName == "ventoy";
+    const bool specialVentoy = baseName == "ventoy";
+
+    return specialForFedora || specialMapperControl || specialVentoy;
 }
 
 /** @brief Returns a list of unneeded crypto devices
