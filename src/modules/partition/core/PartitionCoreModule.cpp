@@ -670,7 +670,7 @@ PartitionCoreModule::jobs( const Config* config ) const
 #ifdef DEBUG_PARTITION_SKIP
     cWarning() << "Partitioning actions are skipped.";
 #else
-    const QStringList doNotClose = findEssentialLVs( m_deviceInfos );
+    const QStringList doNotClose = findEssentialLVs( m_deviceInfos ) + config->doNotClose();
 
     for ( const auto* info : m_deviceInfos )
     {
