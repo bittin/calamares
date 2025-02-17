@@ -40,7 +40,7 @@ class Config : public QObject
 
     Q_PROPERTY( bool lvmEnabled READ isLVMEnabled CONSTANT FINAL )
 
-    Q_PROPERTY( QStringList doNotClose READ doNotClose CONSTANT FINAL )
+    Q_PROPERTY( QStringList essentialMounts READ essentialMounts CONSTANT FINAL )
 
 public:
     Config( QObject* parent );
@@ -186,7 +186,7 @@ public:
      * The names may contain a trailing '*' which acts as a wildcard.
      * In any other position, '*' is interpreted literally.
      */
-    QStringList doNotClose() const { return m_doNotClose; }
+    QStringList essentialMounts() const { return m_essentialMounts; }
 
 public Q_SLOTS:
     void setInstallChoice( int );  ///< Translates a button ID or so to InstallChoice
@@ -223,7 +223,7 @@ private:
     bool m_preCheckEncryption = false;
     bool m_showNotEncryptedBootMessage = true;
     bool m_isLVMEnabled = true;
-    QStringList m_doNotClose;
+    QStringList m_essentialMounts;
 };
 
 /** @brief Given a set of swap choices, return a sensible value from it.
