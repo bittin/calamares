@@ -19,8 +19,14 @@ This release contains contributions from (alphabetically by given name):
    consistent. At least one valid Python program would work with
    the Boost::Python bindings, but not the pybind11 bindings. A
    memory-corruption problem in the Boost::Python bindings was resolved.
+ - Steps in the UI now have a hook to undo any changes they have made
+   to the live system, if the user cancels the installation.
 
 ## Modules ##
+ - *keyboard* module undoes changes to the keyboard layout if the
+   user cancels the installation (returning the system to whatever
+   layout was in use when Calamares started). (#2377, #2431)
+ - *locale* module undoes changes to the timezone. (#2377, #2431)
  - *partition* module stores a global storage value in luksPassphrase,
    for later modules that need to manipulate the encrypted partition.
    (thanks vincent, #2424)
