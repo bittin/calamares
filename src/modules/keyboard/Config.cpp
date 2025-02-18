@@ -576,6 +576,11 @@ Config::detectCurrentKeyboardLayout()
     }
 }
 
+void
+Config::cancel()
+{
+}
+
 QString
 Config::prettyStatus() const
 {

@@ -44,6 +44,9 @@ public:
     /// @brief When leaving the page, write to GS
     void finalize();
 
+    /// @brief Restore the system to whatever layout was in use when detectCurrentKeyboardLayout() was called
+    void cancel();
+
     static AdditionalLayoutInfo getAdditionalLayoutInfo( const QString& layout );
 
     /* A model is a physical configuration of a keyboard, e.g. 105-key PC
