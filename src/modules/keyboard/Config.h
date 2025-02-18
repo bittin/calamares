@@ -97,9 +97,6 @@ private:
      */
     void somethingChanged();
     void apply();
-    void applyLocale1();
-    void applyXkb();
-    void applyKWin();
 
     void getCurrentKeyboardLayoutXkb( QString& currentLayout, QString& currentVariant, QString& currentModel );
     void getCurrentKeyboardLayoutLocale1( QString& currentLayout, QString& currentVariant, QString& currentModel );
@@ -109,10 +106,7 @@ private:
     KeyboardVariantsModel* m_keyboardVariantsModel;
     KeyboardGroupsSwitchersModel* m_KeyboardGroupSwitcherModel;
 
-    QString m_selectedLayout;
-    QString m_selectedModel;
-    QString m_selectedVariant;
-    QString m_selectedGroup;
+    BasicLayoutInfo m_current;
 
     // Layout (and corresponding info) added if current one doesn't support ASCII (e.g. Russian or Japanese)
     AdditionalLayoutInfo m_additionalLayoutInfo;
