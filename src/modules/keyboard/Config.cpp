@@ -571,11 +571,26 @@ Config::detectCurrentKeyboardLayout()
             break;
         }
     }
+    // The models have updated the m_current settings, copy them
+    m_original = m_current;
 }
 
 void
 Config::cancel()
 {
+    const auto extra = getAdditionalLayoutInfo( m_original.selectedLayout );
+    if ( m_configureXkb )
+    {
+        applyXkb( m_original, m_additionalLayoutInfo );
+    }
+    if ( m_configureLocale1 )
+    {
+        applyLocale1( m_original, m_additionalLayoutInfo );
+    }
+    if ( m_configureKWin )
+    {
+        applyKWin( m_original, m_additionalLayoutInfo );
+    }
 }
 
 QString

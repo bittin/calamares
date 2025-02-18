@@ -107,6 +107,7 @@ private:
     KeyboardGroupsSwitchersModel* m_KeyboardGroupSwitcherModel;
 
     BasicLayoutInfo m_current;
+    BasicLayoutInfo m_original;
 
     // Layout (and corresponding info) added if current one doesn't support ASCII (e.g. Russian or Japanese)
     AdditionalLayoutInfo m_additionalLayoutInfo;
