@@ -381,26 +381,11 @@ squareBracketedList( const QStringList& l )
     return QStringLiteral( "[%1]" ).arg( l.join( ", " ) );
 }
 
-// Try to generate such string -> "[('xkb', 'uk+latin1'), ('xkb','en')]"
+// Fpr a layout and variant, returns a string like "('xkb', 'uk+latin1')"
 QString
-tupleListToString( const QList< QPair< QString, QString > >& tupleList )
+concatLayoutAndVariant( const QString& layout, const QString& variant )
 {
-    QStringList l;
-    for ( const auto& tuple : std::as_const( tupleList ) )
-    {
-        l.append( QString( "('%1', '%2')" ).arg( tuple.first ).arg( tuple.second ) );
-    }
-    return squareBracketedList( l );
-}
-
-QString
-concatLayoutAndVariant( QString layout, QString variant )
-{
-    if ( variant == "" )
-    {
-        return layout;
-    }
-    return layout + "+" + variant;
+    return QStringLiteral( "('xkb', '%1')" ).arg( variant.isEmpty() ? layout : ( layout + '+' + variant ) );
 }
 
 // Seem's keyboard settings don't work anymore with setxkbkeyboard with Gnome and Wayland
@@ -413,10 +398,7 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
         = QStringLiteral( "#%1" ).arg( expectedUID );  // GNU sudo can use '-u #nnn' with a literal '#' and numeric UID
     const QString dbusPath = QStringLiteral( "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%1/bus" ).arg( expectedUID );
 
-    QList< QPair< QString, QString > > tupleList;
-    tupleList.append(
-        qMakePair( QString( "xkb" ), concatLayoutAndVariant( settings.selectedLayout, settings.selectedVariant ) ) );
-
+    QStringList sources { concatLayoutAndVariant( settings.selectedLayout, settings.selectedVariant ) };
 
     // Case for ukrainian homophonic keyboard for exemple
     // need to configure 2 keyboards and a toggle key
@@ -424,8 +406,7 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
     // gsettings set org.gnome.desktop.input-sources xkb-options "['grp:lalt_lshift_toggle']"
     if ( !extra.additionalLayout.isEmpty() )
     {
-        tupleList.append(
-            qMakePair( QString( "xkb" ), concatLayoutAndVariant( extra.additionalLayout, extra.additionalVariant ) ) );
+        sources.append( concatLayoutAndVariant( extra.additionalLayout, extra.additionalVariant ) );
 
         if ( !settings.selectedGroup.isEmpty() )
         {
@@ -457,7 +438,7 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
                                                << "set"
                                                << "org.gnome.desktop.input-sources"
                                                << "sources";
-    basicArguments = basicArguments << tupleListToString( tupleList );
+    basicArguments = basicArguments << squareBracketedList( sources );
 
     QProcess::execute( "sudo", basicArguments );
 
