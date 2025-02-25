@@ -376,12 +376,16 @@ applyKWin( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
 }
 
 // Try to generate such string -> "[('xkb', 'uk+latin1'), ('xkb','en')]"
-QString tupleListToString(const QList<QPair<QString, QString>>& tupleList) {
+QString
+tupleListToString( const QList< QPair< QString, QString > >& tupleList )
+{
     QString result = "[";
-    for (int i = 0; i < tupleList.size(); ++i) {
-        const auto& tuple = tupleList[i];
-        result += QString("('%1', '%2')").arg(tuple.first).arg(tuple.second);
-        if (i < tupleList.size() - 1) {
+    for ( int i = 0; i < tupleList.size(); ++i )
+    {
+        const auto& tuple = tupleList[ i ];
+        result += QString( "('%1', '%2')" ).arg( tuple.first ).arg( tuple.second );
+        if ( i < tupleList.size() - 1 )
+        {
             result += ", ";
         }
     }
@@ -389,22 +393,31 @@ QString tupleListToString(const QList<QPair<QString, QString>>& tupleList) {
     return result;
 }
 
-QString concatLayoutAndVariant(QString layout, QString variant) {
-	if(variant == "") return layout;
-	return layout+"+"+variant;
-} 
+QString
+concatLayoutAndVariant( QString layout, QString variant )
+{
+    if ( variant == "" )
+    {
+        return layout;
+    }
+    return layout + "+" + variant;
+}
 
-QString getUsernameById(QString id) {
-	QProcess process;
-    process.start( "id", QStringList() << "-nu" << id);
+QString
+getUsernameById( QString id )
+{
+    QProcess process;
+    process.start( "id", QStringList() << "-nu" << id );
     process.waitForFinished();
- 
-     if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+
+    if ( process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0 )
+    {
         cWarning() << "Command 'id' failed with exit code:" << process.exitCode();
-        cWarning() << "userid" <<  id << "may not exists." << "Using ubuntu user as default"; 
+        cWarning() << "userid" << id << "may not exists."
+                   << "Using ubuntu user as default";
         return "ubuntu";
     }
- 
+
     const QString username = QString( process.readAllStandardOutput().trimmed() );
     cDebug() << "username:" << username;
     return username;
@@ -413,28 +426,26 @@ QString getUsernameById(QString id) {
 // Seem's keyboard settings don't work anymore with setxkbkeyboard with Gnome and Wayland
 // use applyGnome() to use gsettings specific command
 void
-applyGnome(const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra)
+applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
 {
-    QString m_userid="1000";
+    QString m_userid = "1000";
 
     QString layout = settings.selectedLayout;
     QString variant = settings.selectedVariant;
     QString option = settings.selectedGroup;
-    
-    QList<QPair<QString, QString>> tupleList;
-    tupleList.append(qMakePair(QString("xkb"), concatLayoutAndVariant(layout, variant)));
+
+    QList< QPair< QString, QString > > tupleList;
+    tupleList.append( qMakePair( QString( "xkb" ), concatLayoutAndVariant( layout, variant ) ) );
 
 
-	// Case for ukrainian homophonic keyboard for exemple
-	// need to configure 2 keyboards and a toggle key
-	// gsettings set org.gnome.desktop.input-sources sources  "[('xkb', 'uk+latin1'), ('xkb','en')]"
-	// gsettings set org.gnome.desktop.input-sources xkb-options "['grp:lalt_lshift_toggle']"
+    // Case for ukrainian homophonic keyboard for exemple
+    // need to configure 2 keyboards and a toggle key
+    // gsettings set org.gnome.desktop.input-sources sources  "[('xkb', 'uk+latin1'), ('xkb','en')]"
+    // gsettings set org.gnome.desktop.input-sources xkb-options "['grp:lalt_lshift_toggle']"
     if ( !extra.additionalLayout.isEmpty() )
     {
-		tupleList.append(qMakePair(QString("xkb"), 
-		                 concatLayoutAndVariant(
-		                     extra.additionalLayout, 
-		                     extra.additionalVariant)));
+        tupleList.append(
+            qMakePair( QString( "xkb" ), concatLayoutAndVariant( extra.additionalLayout, extra.additionalVariant ) ) );
 
         if ( !settings.selectedGroup.isEmpty() )
         {
@@ -450,20 +461,32 @@ applyGnome(const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra)
             extra.groupSwitcher = "grp:alt_shift_toggle";
         }
 
-        QStringList xkbOptions = QStringList() << "-u" << getUsernameById(m_userid) << "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/"+m_userid+"/bus" << "gsettings" << "set" << "org.gnome.desktop.input-sources" << "xkb-options";
+        QStringList xkbOptions = QStringList() << "-u" << getUsernameById( m_userid )
+                                               << "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + m_userid + "/bus"
+                                               << "gsettings"
+                                               << "set"
+                                               << "org.gnome.desktop.input-sources"
+                                               << "xkb-options";
         xkbOptions = xkbOptions << QString() + "['" + extra.groupSwitcher + "']";
 
         QProcess::execute( "sudo", xkbOptions );
-        
-        cDebug() << "Executed:" << "gsettings" << xkbOptions;
+
+        cDebug() << "Executed:"
+                 << "gsettings" << xkbOptions;
     }
 
-    QStringList basicArguments = QStringList() << "-u" << getUsernameById(m_userid) << "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/"+m_userid+"/bus" << "gsettings" << "set" << "org.gnome.desktop.input-sources" << "sources";
-    basicArguments = basicArguments << tupleListToString(tupleList);
+    QStringList basicArguments = QStringList()
+        << "-u" << getUsernameById( m_userid ) << "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + m_userid + "/bus"
+        << "gsettings"
+        << "set"
+        << "org.gnome.desktop.input-sources"
+        << "sources";
+    basicArguments = basicArguments << tupleListToString( tupleList );
 
     QProcess::execute( "sudo", basicArguments );
-       
-    cDebug() << "Executed:" << "gsettings" << basicArguments;
+
+    cDebug() << "Executed:"
+             << "gsettings" << basicArguments;
 }
 
 
