@@ -413,12 +413,9 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
         = QStringLiteral( "#%1" ).arg( expectedUID );  // GNU sudo can use '-u #nnn' with a literal '#' and numeric UID
     const QString dbusPath = QStringLiteral( "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%1/bus" ).arg( expectedUID );
 
-    QString layout = settings.selectedLayout;
-    QString variant = settings.selectedVariant;
-    QString option = settings.selectedGroup;
-
     QList< QPair< QString, QString > > tupleList;
-    tupleList.append( qMakePair( QString( "xkb" ), concatLayoutAndVariant( layout, variant ) ) );
+    tupleList.append(
+        qMakePair( QString( "xkb" ), concatLayoutAndVariant( settings.selectedLayout, settings.selectedVariant ) ) );
 
 
     // Case for ukrainian homophonic keyboard for exemple
