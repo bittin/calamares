@@ -403,32 +403,15 @@ concatLayoutAndVariant( QString layout, QString variant )
     return layout + "+" + variant;
 }
 
-QString
-getUsernameById( QString id )
-{
-    QProcess process;
-    process.start( "id", QStringList() << "-nu" << id );
-    process.waitForFinished();
-
-    if ( process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0 )
-    {
-        cWarning() << "Command 'id' failed with exit code:" << process.exitCode();
-        cWarning() << "userid" << id << "may not exists."
-                   << "Using ubuntu user as default";
-        return "ubuntu";
-    }
-
-    const QString username = QString( process.readAllStandardOutput().trimmed() );
-    cDebug() << "username:" << username;
-    return username;
-}
-
 // Seem's keyboard settings don't work anymore with setxkbkeyboard with Gnome and Wayland
 // use applyGnome() to use gsettings specific command
 void
 applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
 {
-    QString m_userid = "1000";
+    static constexpr int expectedUID = 1000;  // Assume this is the live-cd user-id
+    const QString sudoUser
+        = QStringLiteral( "#%1" ).arg( expectedUID );  // GNU sudo can use '-u #nnn' with a literal '#' and numeric UID
+    const QString dbusPath = QStringLiteral( "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%1/bus" ).arg( expectedUID );
 
     QString layout = settings.selectedLayout;
     QString variant = settings.selectedVariant;
@@ -461,9 +444,7 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
             extra.groupSwitcher = "grp:alt_shift_toggle";
         }
 
-        QStringList xkbOptions = QStringList() << "-u" << getUsernameById( m_userid )
-                                               << "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + m_userid + "/bus"
-                                               << "gsettings"
+        QStringList xkbOptions = QStringList() << "-u" << sudoUser << dbusPath << "gsettings"
                                                << "set"
                                                << "org.gnome.desktop.input-sources"
                                                << "xkb-options";
@@ -475,12 +456,10 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
                  << "gsettings" << xkbOptions;
     }
 
-    QStringList basicArguments = QStringList()
-        << "-u" << getUsernameById( m_userid ) << "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + m_userid + "/bus"
-        << "gsettings"
-        << "set"
-        << "org.gnome.desktop.input-sources"
-        << "sources";
+    QStringList basicArguments = QStringList() << "-u" << sudoUser << dbusPath << "gsettings"
+                                               << "set"
+                                               << "org.gnome.desktop.input-sources"
+                                               << "sources";
     basicArguments = basicArguments << tupleListToString( tupleList );
 
     QProcess::execute( "sudo", basicArguments );
