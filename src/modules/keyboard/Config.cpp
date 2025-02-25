@@ -397,6 +397,15 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
     const QString sudoUser
         = QStringLiteral( "#%1" ).arg( expectedUID );  // GNU sudo can use '-u #nnn' with a literal '#' and numeric UID
     const QString dbusPath = QStringLiteral( "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%1/bus" ).arg( expectedUID );
+    const QString sudo = QStringLiteral( "sudo" );
+    // clang-format off
+    // These are arguments to sudo to run gsettings to set something on input-sources
+    const QStringList sudoArguments{
+            "-u", sudoUser, // Run as numeric UID
+            dbusPath, // Set environment to pick up live user session bus
+            "gsettings", "set", "org.gnome.desktop.input-sources" // Command, still needs a key and a value after this
+    };
+    // clang-format on
 
     QStringList sources { concatLayoutAndVariant( settings.selectedLayout, settings.selectedVariant ) };
 
@@ -406,13 +415,11 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
     // gsettings set org.gnome.desktop.input-sources xkb-options "['grp:lalt_lshift_toggle']"
     if ( !extra.additionalLayout.isEmpty() )
     {
-        sources.append( concatLayoutAndVariant( extra.additionalLayout, extra.additionalVariant ) );
-
+        // Get a reasonable value for the group switcher, defaulting to alt_shift_toggle if nothing else is set
         if ( !settings.selectedGroup.isEmpty() )
         {
             extra.groupSwitcher = "grp:" + settings.selectedGroup;
         }
-
         if ( extra.groupSwitcher.isEmpty() )
         {
             extra.groupSwitcher = xkbmap_query_grp_option();
@@ -422,28 +429,18 @@ applyGnome( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
             extra.groupSwitcher = "grp:alt_shift_toggle";
         }
 
-        QStringList xkbOptions = QStringList() << "-u" << sudoUser << dbusPath << "gsettings"
-                                               << "set"
-                                               << "org.gnome.desktop.input-sources"
-                                               << "xkb-options";
-        xkbOptions = xkbOptions << QString() + "['" + extra.groupSwitcher + "']";
+        const QString xkbOptionsValue = QStringLiteral( "['%1']" ).arg( extra.groupSwitcher );
+        const QStringList xkbOptionsCommand = QStringList( sudoArguments ) << "xkb-options" << xkbOptionsValue;
+        QProcess::execute( "sudo", xkbOptionsCommand );
+        cDebug() << "Executed: sudo" << xkbOptionsCommand;
 
-        QProcess::execute( "sudo", xkbOptions );
-
-        cDebug() << "Executed:"
-                 << "gsettings" << xkbOptions;
+        // And add additional layout to the sources-list
+        sources.append( concatLayoutAndVariant( extra.additionalLayout, extra.additionalVariant ) );
     }
 
-    QStringList basicArguments = QStringList() << "-u" << sudoUser << dbusPath << "gsettings"
-                                               << "set"
-                                               << "org.gnome.desktop.input-sources"
-                                               << "sources";
-    basicArguments = basicArguments << squareBracketedList( sources );
-
-    QProcess::execute( "sudo", basicArguments );
-
-    cDebug() << "Executed:"
-             << "gsettings" << basicArguments;
+    const QStringList sourcesCommand = QStringList( sudoArguments ) << "sources" << squareBracketedList( sources );
+    QProcess::execute( "sudo", sourcesCommand );
+    cDebug() << "Executed: sudo" << sourcesCommand;
 }
 
 
