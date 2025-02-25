@@ -375,22 +375,22 @@ applyKWin( const BasicLayoutInfo& settings, AdditionalLayoutInfo& extra )
     }
 }
 
+QString
+squareBracketedList( const QStringList& l )
+{
+    return QStringLiteral( "[%1]" ).arg( l.join( ", " ) );
+}
+
 // Try to generate such string -> "[('xkb', 'uk+latin1'), ('xkb','en')]"
 QString
 tupleListToString( const QList< QPair< QString, QString > >& tupleList )
 {
-    QString result = "[";
-    for ( int i = 0; i < tupleList.size(); ++i )
+    QStringList l;
+    for ( const auto& tuple : std::as_const( tupleList ) )
     {
-        const auto& tuple = tupleList[ i ];
-        result += QString( "('%1', '%2')" ).arg( tuple.first ).arg( tuple.second );
-        if ( i < tupleList.size() - 1 )
-        {
-            result += ", ";
-        }
+        l.append( QString( "('%1', '%2')" ).arg( tuple.first ).arg( tuple.second ) );
     }
-    result += "]";
-    return result;
+    return squareBracketedList( l );
 }
 
 QString
